@@ -8,8 +8,8 @@ start_time = time.time()
 
 # lattice parameters
 
-nx = 31    # will be used globally
-ny = 31     # must be both odd for TiltedEdge, nx>~ny
+nx = 71    # will be used globally
+ny = 71     # must be both odd for TiltedEdge, nx>~ny
 hx = 0.1
 hy = 0.1
 
@@ -163,6 +163,8 @@ def DX(x):
     if(hasTiltedEdge):
         # make a hole
         for ypos in range(0,ny):
+            #dx[0:lowX[ypos]-1,ypos,:] = 0 # I was experimenting
+            
             dx[emptyRangeX[ypos],ypos,:] = 0
                     # lowX[ypos] is the east-most non-zero element
             dx[lowX[ypos],ypos,:] = (-25*x[lowX[ypos],ypos,:]+48*x[lowX[ypos]+1,ypos,:]-36*x[lowX[ypos]+2,ypos,:]+16*x[lowX[ypos]+3,ypos,:]-3*x[lowX[ypos]+4,ypos,:])/12.0
@@ -212,8 +214,8 @@ def DY(x):
     
     if(hasTiltedEdge):
         for ypos in range (0,ny):
+            #dy[0:lowX[ypos]-1,ypos,:] = 0   # I was experimenting with this
             dy[emptyRangeX[ypos],ypos,:] = 0
-
             if(ypos==0):
                 dy[0,0,:] = 0       # actual sharp corner #################################
                 dy[1,0,:] = (-3*x[1,0,:]+4*x[1,1,:]-x[1,2,:])/2.0           # point C
@@ -295,12 +297,10 @@ def modFreeEnergy(x):
 
     if(hasTiltedEdge):
         # make a hole
-        #for xpos in range(0, nx):
-        #    x[xpos,emptyRangeY[xpos],:] = 0
         for ypos in range(0,ny):
             #x[emptyRangeX[ypos],ypos,:] = 0 ### THIS DOESN'T WORK AND I DON'T KNOW WHY
             x[0:lowX[ypos]-1,ypos,:] = 0   ### THIS WORKS BUT I DON'T KNOW WHY
-        #x[0:lowX[ypos],ypos,:] = 0
+        
         # boundary conditions
         for ypos in range(0,ny):
             if(ypos==0):
@@ -314,23 +314,6 @@ def modFreeEnergy(x):
                 x[xpos,ypos,0:2]=(x[xpos+2,ypos-1,0:2]*hy*hy+2*hx*hy*x[xpos+2,ypos-1,2:4])/(4*hx*hx+hy*hy)
                 x[xpos,ypos,2:4]=(2*hx/hy)*x[xpos,ypos,0:2]
             
-#            if(ypos==1):
-#                x[1,1,:] = ((48*x[2,1,:]-36*x[3,1,:]+16*x[4,1,:]-3*x[5,1,:])*hy-3*hx*(x[1,2,:]-x[1,0,:]))/(25*hy)
-#                x[1,1,2:4] = 2*x[1,1,0:2]
-#            if(ypos==2):
-#                x[1,2,:] = ((48*x[2,2,:]-36*x[3,2,:]+16*x[4,2,:]-3*x[5,2,:])*hy-3*hx*(x[1,0,:]-4*x[1,1,:]))/(9*hx+25*hy)
-#                x[1,2,2:4] = 2*x[1,2,0:2]
-#            if(ypos>2):
-#                xpos = lowX[ypos]
-##                B = 48*x[xpos+1,ypos,:]-36*x[xpos+2,ypos,:]+16*x[xpos+3,ypos,:]-3*x[xpos+4,ypos,:]
-##                if(ypos % 2 == 1): #odd
-##                    A1 = -x[xpos,ypos-3,:] +6*x[xpos,ypos-2,:]-18*x[xpos,ypos-1,:]+3*x[xpos,ypos+1,:] ### problematic for nx neq ny, probably need to implement the last few ypos manually!!!!!
-##                    x[xpos,ypos,:] = (2*hy*B-hx*A1)/(10*hx+50*hy)
-#                if(ypos % 2 == 0): #even
-##                    A2 = 3*x[xpos,ypos-4,:]-16*x[xpos,ypos-3,:]+36*x[xpos,ypos-2,:]-48*x[xpos,ypos-1,:]
-##                    x[xpos,ypos,:] = (2*hy*B-hx*A2)/(25*hx+50*hy)
-#                    x[xpos,ypos,0:2] = (4*hy*x[xpos+1,ypos,2:4]+2*hy*x[xpos+1,ypos,0:2]-2*hx*x[xpos,ypos-1,2:4]-hx*x[xpos,ypos-1,0:2])/(10.0*hy-5.0*hx)
-#                x[xpos,ypos,2:4] = 2*x[xpos,ypos,0:2] # Delta_y = 2*Delta_x
 #
 
 
