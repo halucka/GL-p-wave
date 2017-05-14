@@ -8,8 +8,8 @@ start_time = time.time()
 
 # lattice parameters
 
-nx = 71    # will be used globally
-ny = 71     # must be both odd for TiltedEdge, nx>~ny
+nx = 17      # will be used globally
+ny = 17
 hx = 0.1
 hy = 0.1
 
@@ -19,28 +19,28 @@ hasTiltedHole = False
 hasTiltedEdge = True
 
 
-if(hasParallelHole):
-    sx = 5 # hole size
+if hasParallelHole:
+    sx = 5  # hole size
     sy = 5
     
-    lowX = (nx-sx)//2 ## watch out: integer division (make sure nx ~ sx (mod 2) & ny ~ sy (mod 2) to avoid unexpected behavior)
+    lowX = (nx-sx)//2   # watch out: integer division (make sure nx ~ sx (mod 2) & ny ~ sy (mod 2) to avoid unexpected behavior)
     highX = (nx+sx)//2
 
     lowY = (ny-sy)//2
     highY = (ny+sy)//2
 
-    rangeX = slice(lowX,highX) # defined so that it has sx points included
-    rangeY = slice(lowY,highY)
+    rangeX = slice(lowX, highX)  # defined so that it has sx points included
+    rangeY = slice(lowY, highY)
 
 
-if(hasTiltedHole):
+if hasTiltedHole:
     tx = 3
     ty = 5
     lx = 2*tx + 1
     ly = 2*ty + 1
 
 
-if(hasTiltedEdge):
+if hasTiltedEdge:
     lowY = np.empty(nx)
     highY = np.empty(nx)
     lowX = np.empty(ny)
@@ -52,27 +52,25 @@ if(hasTiltedEdge):
     rangeX = []
     emptyRangeX = []
     
-
     for x in range(0, nx):
         lowY[x] = 0
-        highY[x] = np.minimum(ny,2*x+1)
+        highY[x] = np.minimum(ny, 2*x+1)
     lowY = lowY.astype(np.int64)
     highY = highY.astype(np.int64)  # need to explicitly make it integer
 
     for x in range(0, nx):
-        rangeY.append(slice(lowY[x],highY[x]))
-        emptyRangeY.append(slice(highY[x],ny))
+        rangeY.append(slice(lowY[x], highY[x]))
+        emptyRangeY.append(slice(highY[x], ny))
 
-
-    for y in range(0,ny):
-        lowX[y] = np.minimum((y+1)//2,nx) ### floor division
+    for y in range(0, ny):
+        lowX[y] = np.minimum((y+1)//2, ny)  # floor division
         highX[y] = nx
-    lowX = lowX.astype(np.int64) # need to explicitly make it integer
-    highX = highX.astype(np.int64)
+    lowX = lowX.astype(np.int64)    # need to explicitly make it integer
 
-    for y in range(0,ny):
-        rangeX.append(slice(lowX[y],highX[y])) ## all points that belong to the mesh at that row
-        emptyRangeX.append(slice(0,lowX[y]))
+    for y in range(0, ny):
+        rangeX.append(slice(lowX[y], nx))
+        emptyRangeX.append(slice(0, lowX[y]))
+
 
 # p-wave GL free energy parameters
 # at the moment chosen to give bulk norm 1 for both Delta_x and Delta_y
@@ -85,37 +83,38 @@ K2 = 1
 K3 = 1
 
 # starting point of minimization
-a = np.random.random((nx,ny,4))
+a = np.random.random((nx, ny, 4))
 
-#a = np.load("temporarySolution.npy")
+# a = np.load("finalSolution-bulk-51.npy")
 
-##initialize to homogeneous px + i py
-#a = np.zeros((nx,ny,4))
-#a[:,:,0] = 1
-#a[:,:,3] = 1
+# initialize to homogeneous px + i py
+# a = np.zeros((nx,ny,4))
+# a[:,:,0] = 1
+# a[:,:,3] = 1
 
-def plot(x,title):
+
+def plot(x, title):
     
     fig, axarr = plt.subplots(2, 2)
-    img1 = axarr[0, 0].imshow(x[:,:,0].T, interpolation='nearest')
+    img1 = axarr[0, 0].imshow(x[:, :, 0].T, interpolation='nearest')
     axarr[0, 0].set_title(title[0])
-    plt.axes(axarr[0,0])
+    plt.axes(axarr[0, 0])
     fig.colorbar(img1)
     
-    img2 = axarr[0, 1].imshow(x[:,:,1].T, interpolation='nearest')
+    img2 = axarr[0, 1].imshow(x[:, :, 1].T, interpolation='nearest')
     axarr[0, 1].set_title(title[1])
-    plt.axes(axarr[0,1])
+    plt.axes(axarr[0, 1])
     fig.colorbar(img2)
     
-    img3 = axarr[1, 0].imshow(x[:,:,2].T, interpolation='nearest')
+    img3 = axarr[1, 0].imshow(x[:, :, 2].T, interpolation='nearest')
     axarr[1, 0].set_title(title[2])
-    plt.axes(axarr[1,0])
+    plt.axes(axarr[1, 0])
     fig.colorbar(img3)
     
     
-    img4 = axarr[1, 1].imshow(x[:,:,3].T, interpolation='nearest')
+    img4 = axarr[1, 1].imshow(x[:, :, 3].T, interpolation='nearest')
     axarr[1, 1].set_title(title[3])
-    plt.axes(axarr[1,1])
+    plt.axes(axarr[1, 1])
     fig.colorbar(img4)
     # adjust spacing between subplots so that things don't overlap
     fig.tight_layout()
@@ -125,9 +124,9 @@ def plot(x,title):
 def DX(x):
     #dx = np.gradient(x[:,:,:], axis=0)
     
-    dx = np.zeros((nx,ny,4))
+    dx = np.zeros((nx, ny, 4))
     
-    dx[0,:,:] = (-25*x[0,:,:]+48*x[1,:,:]-36*x[2,:,:]+16*x[3,:,:]-3*x[4,:,:])/12.0
+    dx[0, :, :] = (-25*x[0, :, :]+48*x[1, :, :]-36*x[2, :, :]+16*x[3, :, :]-3*x[4, :, :])/12.0
     #x[1,:,:]-x[0,:,:]
     dx[1,:,:] = (-3*x[0,:,:]-10*x[1,:,:]+18*x[2,:,:]-6*x[3,:,:]+x[4,:,:])/12.0
     # x[2,:,:]-x[1,:,:]
@@ -141,9 +140,9 @@ def DX(x):
     #x[-1,:,:]-x[-2,:,:]
 
 
-    dx[0,:,:] = x[1,:,:]-x[0,:,:]
-    dx[1:-1,:,:] = 0.5*(x[2:,:,:]-x[0:-2,:,:])
-    dx[-1,:,:] = x[-2,:,:]-x[-1,:,:]
+#    dx[0,:,:] = x[1,:,:]-x[0,:,:]
+#    dx[1:-1,:,:] = 0.5*(x[2:,:,:]-x[0:-2,:,:])
+#    dx[-1,:,:] = x[-2,:,:]-x[-1,:,:]
 
     if(hasParallelHole):
         dx[rangeX,rangeY,:] = 0
@@ -163,8 +162,6 @@ def DX(x):
     if(hasTiltedEdge):
         # make a hole
         for ypos in range(0,ny):
-            #dx[0:lowX[ypos]-1,ypos,:] = 0 # I was experimenting
-            
             dx[emptyRangeX[ypos],ypos,:] = 0
                     # lowX[ypos] is the east-most non-zero element
             dx[lowX[ypos],ypos,:] = (-25*x[lowX[ypos],ypos,:]+48*x[lowX[ypos]+1,ypos,:]-36*x[lowX[ypos]+2,ypos,:]+16*x[lowX[ypos]+3,ypos,:]-3*x[lowX[ypos]+4,ypos,:])/12.0
@@ -214,10 +211,10 @@ def DY(x):
     
     if(hasTiltedEdge):
         for ypos in range (0,ny):
-            #dy[0:lowX[ypos]-1,ypos,:] = 0   # I was experimenting with this
             dy[emptyRangeX[ypos],ypos,:] = 0
+
             if(ypos==0):
-                dy[0,0,:] = 0       # actual sharp corner #################################
+                dy[0,0,:] = 0       # actual sharp corner
                 dy[1,0,:] = (-3*x[1,0,:]+4*x[1,1,:]-x[1,2,:])/2.0           # point C
             if(ypos==1):
                 dy[1,1,:] = (x[1,2,:]-x[1,0,:])/2.0                         # point A
@@ -297,24 +294,31 @@ def modFreeEnergy(x):
 
     if(hasTiltedEdge):
         # make a hole
-        for ypos in range(0,ny):
-            #x[emptyRangeX[ypos],ypos,:] = 0 ### THIS DOESN'T WORK AND I DON'T KNOW WHY
-            x[0:lowX[ypos]-1,ypos,:] = 0   ### THIS WORKS BUT I DON'T KNOW WHY
-        
+        for xpos in range(0, nx):
+            x[xpos,emptyRangeY[xpos],:] = 0
+        #for ypos in range(0,ny):
+            #x[emptyRangeX[ypos],ypos,:] = 0
+
         # boundary conditions
-        for ypos in range(0,ny):
+        for ypos in range(0,ny): ### TODO what to do with points really in the corner??????
             if(ypos==0):
-                x[0,0,:] = (48*x[1,0,:]-36*x[2,0,:]+16*x[3,0,:]-3*x[4,0,:])/25.0
-                x[0,0,2:4] = (2*hx/hy)*x[0,0,0:2]
-                #x[0,0,:] = 0 # would follow from 1st equation only, applied from 2 directions
-                x[1,0,2:4] = 0
-                x[1,0,0:2] = (4*x[1,1,0:2]-x[1,2,0:2])/3.0
-            if(ypos>0):
-                xpos = lowX[ypos]
-                x[xpos,ypos,0:2]=(x[xpos+2,ypos-1,0:2]*hy*hy+2*hx*hy*x[xpos+2,ypos-1,2:4])/(4*hx*hx+hy*hy)
-                x[xpos,ypos,2:4]=(2*hx/hy)*x[xpos,ypos,0:2]
-            
-#
+                x[0,0,:] = 0
+            if(ypos==1):
+                x[0,0,:] = 0        #TODO
+            if(ypos==2):
+                x[0,0,:] = 0        #TODO
+            if(ypos==3):
+                x[0,0,:] = 0        #TODO
+            if(ypos==4):
+                x[0,0,:] = 0        #TODO
+            if(ypos>4):
+                A = 3*x[lowX[ypos],ypos-5,:]-16*x[lowX[ypos],ypos-4,:]+36*x[lowX[ypos],ypos-3,:]-48*x[lowX[ypos],ypos-2,:]
+                B = 48*x[lowX[ypos]+1,ypos,:]-36*x[lowX[ypos]+2,ypos,:]+16*x[lowX[ypos]+3,ypos,:]-3*x[lowX[ypos]+4,ypos,:]
+                x[lowX[ypos],ypos,:] = (2*hy*B - hx*A)/(25*hx + 50*hy)
+                x[lowX[ypos],ypos,2:4] = 2*x[lowX[ypos],ypos,2:4] # Delta_y = 2*Delta_x
+            if(ypos == ny -1):
+                x[lowX[ypos],ypos,:] = 0
+
 
 
     # non-gradient terms
@@ -350,12 +354,7 @@ def afterEachIteration(x):
     # saving solution in Python format, get back i.e. by a = np.load("finalSolution.npy")
     x = x.reshape((nx,ny,4))
     np.save('temporarySolution', x)
-    np.save('temporaryDX',DX(x))
-    np.save('temporaryDY',DY(x))
 
-# for setting up bounds
-# bnds = [(-1,0)] * nx*ny*4 #((0, None), (0, None), (0, None))
-# ,bounds=bnds
 
 res = scipy.optimize.minimize(fun=modFreeEnergy, x0=a, method="L-BFGS-B",callback=afterEachIteration,options={'disp': True,'maxfun': 150000000}) #method="L-BFGS-B"
 #res = scipy.optimize.minimize(fun=modFreeEnergy, x0=a, method="Nelder-Mead",callback=afterEachIteration,options={'disp': True})
