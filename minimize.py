@@ -87,7 +87,7 @@ K3 = 1
 # starting point of minimization
 a = np.random.random((nx,ny,4))
 
-#a = np.load("finalSolution-wrongBC.npy")
+#a = np.load("temporarySolution.npy")
 
 ##initialize to homogeneous px + i py
 #a = np.zeros((nx,ny,4))
@@ -298,18 +298,22 @@ def modFreeEnergy(x):
         #for xpos in range(0, nx):
         #    x[xpos,emptyRangeY[xpos],:] = 0
         for ypos in range(0,ny):
-            #x[emptyRangeX[ypos],ypos,:] = 0
+            #x[emptyRangeX[ypos],ypos,:] = 0 ### THIS DOESN'T WORK AND I DON'T KNOW WHY
             x[0:lowX[ypos]-1,ypos,:] = 0   ### THIS WORKS BUT I DON'T KNOW WHY
         #x[0:lowX[ypos],ypos,:] = 0
-#        # boundary conditions
-#        for ypos in range(0,ny):
-#            if(ypos==0):
-#                x[0,0,:] = (48*x[1,0,:]-36*x[2,0,:]+16*x[3,0,:]-3*x[4,0,:])/25.0
-#                x[0,0,2:4] = 2*x[0,0,0:2]
-#                #x[0,0,:] = 0 # would follow from 1st equation only, applied from 2 directions
-#                x[1,0,2:4] = 0
-#                x[1,0,0:2] = (4*x[1,1,0:2]-x[1,2,0:2])/3.0
-#                
+        # boundary conditions
+        for ypos in range(0,ny):
+            if(ypos==0):
+                x[0,0,:] = (48*x[1,0,:]-36*x[2,0,:]+16*x[3,0,:]-3*x[4,0,:])/25.0
+                x[0,0,2:4] = (2*hx/hy)*x[0,0,0:2]
+                #x[0,0,:] = 0 # would follow from 1st equation only, applied from 2 directions
+                x[1,0,2:4] = 0
+                x[1,0,0:2] = (4*x[1,1,0:2]-x[1,2,0:2])/3.0
+            if(ypos>0):
+                xpos = lowX[ypos]
+                x[xpos,ypos,0:2]=(x[xpos+2,ypos-1,0:2]*hy*hy+2*hx*hy*x[xpos+2,ypos-1,2:4])/(4*hx*hx+hy*hy)
+                x[xpos,ypos,2:4]=(2*hx/hy)*x[xpos,ypos,0:2]
+            
 #            if(ypos==1):
 #                x[1,1,:] = ((48*x[2,1,:]-36*x[3,1,:]+16*x[4,1,:]-3*x[5,1,:])*hy-3*hx*(x[1,2,:]-x[1,0,:]))/(25*hy)
 #                x[1,1,2:4] = 2*x[1,1,0:2]
