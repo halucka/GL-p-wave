@@ -2,7 +2,7 @@ import scipy.optimize
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-import random
+# import random
 
 start_time = time.time()
 
@@ -147,18 +147,18 @@ def DX(x):
         # fix dx on AC and BD edges
         # AC edge
         dx[lowX -1, rangeY, :] = (3*x[lowX-5, rangeY, :]-16*x[lowX-4, rangeY, :]+36*x[lowX-3, rangeY, :]-48*x[lowX-2, rangeY, :]+25*x[lowX-1, rangeY, :])/12.0
-        #x[lowX -1,rangeY,:] - x[lowX -2, rangeY,:]
+        # x[lowX -1,rangeY,:] - x[lowX -2, rangeY,:]
         dx[lowX -2, rangeY, :] = (-x[lowX-5, rangeY, :]+6*x[lowX-4, rangeY, :]-18*x[lowX-3, rangeY, :]+10*x[lowX-2, rangeY, :]+3*x[lowX-1, rangeY, :])/12.0
 
         # BD edge
         dx[highX, rangeY, :] = (-25*x[highX, rangeY, :]+48*x[highX+1, rangeY, :]-36*x[highX+2, rangeY, :]+16*x[highX+3, rangeY, :]-3*x[highX+4, rangeY, :])/12.0
-        #x[highX +1,rangeY,:] - x[highX,rangeY,:]
+        # x[highX +1,rangeY,:] - x[highX,rangeY,:]
         dx[highX+1, rangeY, :] = (-3*x[highX, rangeY, :]-10*x[highX+1, rangeY, :]+18*x[highX+2, rangeY, :]-6*x[highX+3, rangeY, :]+x[highX+4, rangeY, :])/12.0
     
     if hasTiltedEdge:
         # make a hole
-        for ypos in range(0,ny):
-            #dx[0:lowX[ypos]-1,ypos,:] = 0 # I was experimenting
+        for ypos in range(0, ny):
+            # dx[0:lowX[ypos]-1,ypos,:] = 0 # I was experimenting
             
             dx[emptyRangeX[ypos], ypos, :] = 0
                     # lowX[ypos] is the east-most non-zero element
@@ -170,57 +170,54 @@ def DX(x):
 def DY(x):
     # dy = np.gradient(x[:,:,:], axis=1)/hy
 
-    dy = np.zeros((nx,ny,4))
+    dy = np.zeros((nx, ny, 4))
 
-    dy[:,0,:] = (-25*x[:,0,:]+48*x[:,1,:]-36*x[:,2,:]+16*x[:,3,:]-3*x[:,4,:])/12.0
+    dy[:, 0, :] = (-25*x[:, 0, :]+48*x[:, 1, :]-36*x[:, 2, :]+16*x[:, 3, :]-3*x[:, 4, :])/12.0
     # x[:,1,:]-x[:,0,:]
-    dy[:,1,:] = (-3*x[:,0,:]-10*x[:,1,:]+18*x[:,2,:]-6*x[:,3,:]+x[:,4,:])/12.0
+    dy[:, 1, :] = (-3*x[:, 0, :]-10*x[:, 1, :]+18*x[:, 2, :]-6*x[:, 3, :]+x[:, 4, :])/12.0
     # x[:,2,:]-x[:,1,:]
 
-    dy[:,2:-2,:] = (x[:,0:-4,:]-8*x[:,1:-3,:]+8*x[:,3:-1,:]-x[:,4:,:])/12.0
+    dy[:, 2:-2, :] = (x[:, 0:-4, :]-8*x[:, 1:-3, :]+8*x[:, 3:-1, :]-x[:, 4:, :])/12.0
     
-    dy[:,-2,:] = (-x[:,-5,:]+6*x[:,-4,:]-18*x[:,-3,:]+10*x[:,-2,:]+3*x[:,-1,:])/12.0
+    dy[:, -2, :] = (-x[:, -5, :]+6*x[:, -4, :]-18*x[:, -3, :]+10*x[:, -2, :]+3*x[:, -1, :])/12.0
     # x[:,-3,:]-x[:,-2,:]
-    dy[:,-1,:] = (3*x[:,-5,:]-16*x[:,-4,:]+36*x[:,-3,:]-48*x[:,-2,:]+25*x[:,-1,:])/12.0
+    dy[:, -1, :] = (3*x[:, -5, :]-16*x[:, -4, :]+36*x[:, -3, :]-48*x[:, -2, :]+25*x[:, -1, :])/12.0
     # x[:,-2,:]-x[:,-1,:]
 
-    
-    
 #    dy[:,0,:] = x[:,1,:]-x[:,0,:]
 #    dy[:,1:-1,:] = 0.5*(x[:,2:,:]-x[:,0:-2,:])
 #    dy[:,-1,:] = x[:,-2,:]-x[:,-1,:]
 
     if hasParallelHole:
-        dy[rangeX,rangeY,:] = 0
+        dy[rangeX, rangeY, :] = 0
         
         # fix dy on AB and CD edges
         
         # AB edge
-        dy[rangeX, highY,:] = (-25*x[rangeX,highY,:]+48*x[rangeX,highY+1,:]-36*x[rangeX,highY+2,:]+16*x[rangeX,highY+3,:]-3*x[rangeX,highY+4,:])/12.0
-        dy[rangeX, highY+1,:] = (-3*x[rangeX,highY,:]-10*x[rangeX,highY+1,:]+18*x[rangeX,highY+2,:]-6*x[rangeX,highY+3,:]+x[rangeX,highY+4,:])/12.0
+        dy[rangeX, highY, :] = (-25*x[rangeX, highY, :]+48*x[rangeX, highY+1, :]-36*x[rangeX, highY+2, :]+16*x[rangeX, highY+3, :]-3*x[rangeX, highY+4, :])/12.0
+        dy[rangeX, highY+1, :] = (-3*x[rangeX, highY, :]-10*x[rangeX, highY+1, :]+18*x[rangeX, highY+2, :]-6*x[rangeX, highY+3, :]+x[rangeX, highY+4, :])/12.0
         # x[rangeX, highY +1,:] -x[rangeX, highY,:]
         
-        
         # CD edge
-        dy[rangeX, lowY-1,:] = (3*x[rangeX,lowY-5,:]-16*x[rangeX,lowY-4,:]+36*x[rangeX,lowY-3,:]-48*x[rangeX,lowY-2,:]+25*x[rangeX,lowY-1,:])/12.0
-        dy[rangeX,lowY-2,:] = (-x[rangeX,lowY-5,:]+6*x[rangeX,lowY-4,:]-18*x[rangeX,lowY-3,:]+10*x[rangeX,lowY-2,:]+3*x[rangeX,lowY-1,:])/12.0
+        dy[rangeX, lowY-1, :] = (3*x[rangeX, lowY-5, :]-16*x[rangeX, lowY-4, :]+36*x[rangeX, lowY-3, :]-48*x[rangeX, lowY-2, :]+25*x[rangeX, lowY-1, :])/12.0
+        dy[rangeX, lowY-2, :] = (-x[rangeX, lowY-5, :]+6*x[rangeX, lowY-4, :]-18*x[rangeX, lowY-3, :]+10*x[rangeX, lowY-2, :]+3*x[rangeX, lowY-1, :])/12.0
         # x[rangeX, lowY -1,:] -x[rangeX, lowY -2,:]
     
     if hasTiltedEdge:
-        for ypos in range (0, ny):
+        for ypos in range(0, ny):
             # dy[0:lowX[ypos]-1,ypos,:] = 0   # I was experimenting with this
             dy[emptyRangeX[ypos], ypos, :] = 0
-            if ypos==0:
+            if ypos == 0:
                 dy[0, 0, :] = 0       # actual sharp corner #################################
                 dy[1, 0, :] = (-3*x[1, 0, :]+4*x[1, 1, :]-x[1, 2, :])/2.0           # point C
-            if ypos==1:
+            if ypos == 1:
                 dy[1, 1, :] = (x[1, 2, :]-x[1, 0, :])/2.0                         # point A
-            if ypos==2:
+            if ypos == 2:
                 dy[1, 2, :] = (x[1, 0, :]-4*x[1, 1, :]+3*x[1, 2, :])/2.0            # point B
-            if ypos>2:
-                if(ypos % 2 == 1): # odd
+            if ypos > 2:
+                if ypos % 2 == 1: # odd
                     dy[lowX[ypos], ypos, :] = (-x[lowX[ypos], ypos-3, :]+6*x[lowX[ypos], ypos-2, :]-18*x[lowX[ypos], ypos-1, :]+10*x[lowX[ypos], ypos, :]+3*x[lowX[ypos], ypos+1, :])/12.0
-                if(ypos % 2 == 0): # even
+                if ypos % 2 == 0: # even
                     dy[lowX[ypos], ypos, :] = (3*x[lowX[ypos], ypos-4, :]-16*x[lowX[ypos], ypos-3, :]+36*x[lowX[ypos], ypos-2, :]-48*x[lowX[ypos], ypos-1, :]+25*x[lowX[ypos], ypos, :])/12.0
 
     return dy/hy
@@ -230,7 +227,7 @@ def DY(x):
 
 def mod_free_energy(x):
     
-    x = x.reshape((nx,ny,4)) # because scipy.optimize.minimize casts x into (nx*ny*4,)  vector
+    x = x.reshape((nx, ny, 4)) # because scipy.optimize.minimize casts x into (nx*ny*4,)  vector
     
     # apply boundary conditions first
     
@@ -285,8 +282,8 @@ def mod_free_energy(x):
     
     if hasTiltedHole:
         # make a hole
-        for xpos in range(-(ly+tx)/2+1 , (ly+tx)/2):
-            x[xpos +(nx-1)/2 , np.maximum(-2*xpos - ly -tx +2,(xpos-(ly+tx)/2 +1)/2) + (ny-1)/2 : np.minimum((xpos + (ly+tx)/2 -1)/2, -2*xpos + ly + tx -2 ) +1  + (ny-1)/2,:] = 0
+        for xpos in range(-(ly+tx)/2+1, (ly+tx)/2):
+            x[xpos +(nx-1)/2, np.maximum(-2*xpos - ly -tx +2, (xpos-(ly+tx)/2 +1)/2) + (ny-1)/2 : np.minimum((xpos + (ly+tx)/2 -1)/2, -2*xpos + ly + tx -2 ) +1  + (ny-1)/2,:] = 0
 
     if hasTiltedEdge:
         # make a hole
@@ -296,24 +293,24 @@ def mod_free_energy(x):
         
         # boundary conditions
         for ypos in range(0, ny):
-            if(ypos==0):
+            if ypos == 0:
                 x[0, 0, :] = (48*x[1, 0, :]-36*x[2, 0, :]+16*x[3, 0, :]-3*x[4, 0, :])/25.0
                 x[0, 0, 2:4] = (2*hx/hy)*x[0, 0, 0:2]
                 # x[0,0,:] = 0 # would follow from 1st equation only, applied from 2 directions
                 x[1, 0, 2:4] = 0
                 x[1, 0, 0:2] = (4*x[1, 1, 0:2]-x[1, 2, 0:2])/3.0
-            if(ypos>0):
+            if ypos > 0:
                 xpos = lowX[ypos]
-                x[xpos, ypos, 0:2]=(x[xpos+2, ypos-1, 0:2]*hy*hy+2*hx*hy*x[xpos+2, ypos-1, 2:4])/(4*hx*hx+hy*hy)
-                x[xpos, ypos, 2:4]=(2*hx/hy)*x[xpos, ypos, 0:2]
+                x[xpos, ypos, 0:2] = (x[xpos+2, ypos-1, 0:2]*hy*hy+2*hx*hy*x[xpos+2, ypos-1, 2:4])/(4*hx*hx+hy*hy)
+                x[xpos, ypos, 2:4] = (2*hx/hy)*x[xpos, ypos, 0:2]
 
     # non-gradient terms
-    alphaTerm = np.sum(x[:,:,:]**2)  #  Note: 0:4 means 0 to 3
-    alphaTerm *= alpha
-    Beta1Term = np.sum((x[:,:,0]**2-x[:,:,1]**2+x[:,:,2]**2-x[:,:,3]**2)**2+4*(x[:,:,0]*x[:,:,1]+x[:,:,2]*x[:,:,3])**2)
-    Beta1Term *= Beta1
-    Beta2Term = np.sum((x[:,:,0]**2 + x[:,:,1]**2 + x[:,:,2]**2 + x[:,:,3]**2)**2)
-    Beta2Term *= Beta2
+    alpha_term = np.sum(x[:, :, :]**2)   # Note: 0:4 means 0 to 3
+    alpha_term *= alpha
+    beta1_term = np.sum((x[:, :, 0]**2-x[:, :, 1]**2+x[:, :, 2]**2-x[:, :, 3]**2)**2+4*(x[:, :, 0]*x[:, :, 1]+x[:, :, 2]*x[:, :, 3])**2)
+    beta1_term *= Beta1
+    beta2_term = np.sum((x[:, :, 0]**2 + x[:, :, 1]**2 + x[:, :, 2]**2 + x[:, :, 3]**2)**2)
+    beta2_term *= Beta2
     
     # gradients
     dx = DX(x)
@@ -328,11 +325,12 @@ def mod_free_energy(x):
     
     K3Term = np.sum(dx[:, :, 0]**2 + dx[:, :, 1]**2 + dy[:, :, 2]**2 + dy[:, :, 3]**2 + 2*dx[:, :, 2]*dy[:, :, 0] + 2*dx[:, :, 3]*dy[:, :, 1])
     K3Term *= K3
-    free_energy = (alphaTerm + Beta1Term + Beta2Term + K1Term + K2Term + K3Term)*hx*hy
+    free_energy = (alpha_term + beta1_term + beta2_term + K1Term + K2Term + K3Term)*hx*hy
     
     return free_energy
 
-def afterEachIteration(x):
+
+def after_each_iteration(x):
     # saving solution in Python format, get back i.e. by a = np.load("finalSolution.npy")
     x = x.reshape((nx, ny, 4))
     np.save('temporarySolution', x)
@@ -343,8 +341,8 @@ def afterEachIteration(x):
 # bnds = [(-1,0)] * nx*ny*4 #((0, None), (0, None), (0, None))
 # ,bounds=bnds
 
-res = scipy.optimize.minimize(fun=mod_free_energy, x0=a, args=(), method="L-BFGS-B", callback=afterEachIteration, options={'disp': True, 'maxfun': 50}) # method="L-BFGS-B"
-# res = scipy.optimize.minimize(fun=mod_free_energy, x0=a, method="Nelder-Mead",callback=afterEachIteration,options={'disp': True})
+res = scipy.optimize.minimize(fun=mod_free_energy, x0=a, args=(), method="L-BFGS-B", callback=after_each_iteration, options={'disp': True, 'maxfun': 50}) # method="L-BFGS-B"
+# res = scipy.optimize.minimize(fun=mod_free_energy, x0=a, method="Nelder-Mead",callback=after_each_iteration,options={'disp': True})
 # result = minimize(func, jac=jac_func, args=(D_neg, D, C), method = 'TNC' ...other arguments)
 
 # POSSIBLE ARGUMENTS
@@ -376,7 +374,7 @@ print(mod_free_energy(finalSolution))
 print("--- %s seconds ---" % (time.time() - start_time))
 
 
-### PLOTTING RESULTS ###
+# PLOTTING RESULTS ###
 dx = DX(finalSolution)
 np.save('finalSolution-dx', dx)
 np.savetxt('finalSolution-dx-aR.txt', dx[:, :, 0])
